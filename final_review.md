@@ -605,22 +605,145 @@ $$
 
 ![SVM separation. Note the critical quantities w (slope) and b (bias)](images/SVM2.png){width=50%}
 
-# Max Likelihood Estimation
-* Setup: Given data $D = (x_1, ..., x_n)$ ($x_i \in \mathbb{R}^d$). Assume a set of distributions $\{p_\theta | \theta \in \Theta\}$. Asumme $D$ is a sample from $X_1, X_2, ..., X_N ~ p_\theta$ ($p_\theta(x) = p(x|\theta)$) iid (independent and identically distributed random variables) for some $\theta \in \Theta$.
-* Goal: Estimate the true $\theta$ the $D$ comes from
-* Def: $\theta_{MLE}$ is a MLE for $\theta$ if $\theta_{MLE} = \text{arg}\underset{\theta \in \Theta}{\text{max}} p(D|\theta)$
-    * More precisely, $p(D|\theta_{MLE}) = \underset{\theta \in \Theta}{\text{max }} p(D|\theta)$
-    * $p(D|\theta)$ is the likelihood function, a function of $\theta$
-* Since we said $D$ is iid, $p(D|\theta) = p(x_1,x_2, ...,x_n)|\theta) = \prod_{i = 1}^{n} p(x_i|\theta) = \prod_{i = 1}^{n}P(X_i = x_i | \theta)$
-* Remarks:
-    1. MLE might not be unique
-    2. MLE may fail to exist -> max may not be achieved at any $\theta$
-* Pros
-    1. Easy to compute
-    2. Interpretable
-    3. Asymptotic properties:
-        * Consistent - approaches true $\theta$ as N approaches $\infty$
-        * Normal - distribution when N is very large is normal
-* Cons:
-    1. Point estimate - no representation of uncertainty
+### SVM Summary
+* The maximal margin classifier leads to a hyperplane in two forms:
+$$
+\begin{aligned}
+    g(x : w,b) &= \langle w,x \rangle + b~~~~&\text{(primal)} \\
+    g(x : w,b) &= \sum_{i \in SV} \alpha_i y_i \langle x_i,x \rangle + b &\text{(dual)}
+\end{aligned}
+$$
+* We can map this SVM to kernel induced spaced. Given $D = \{(x_i,y_i): i=1,...,m\}$ which is linearly separable in the feature space implicitly defined by a kernel $K(x,x')$. Suppose $\alpha^*, b^*$ solbes the quadratic maximization problem:
+$$ \alpha* = \text{argmax}~ \sum_{i=1}^{m} \alpha_i - \frac{1}{2} \sum_{i=1}^{m}\sum_{j=1}^{m}\alpha_i\alpha_jy_iy_jK(x,x') $$
+subject to: 
+$\sum_{i=1}^{m} y_i \alpha_i = 0$ (from $\frac{\partial L}{\partial b} = 0$) and $\alpha_i \geq 0$ (from Kuhn-Tucker) 
+* The decision rule becomes:
+$$ H(x) = \text{sign}\left( \sum_{i=1}^{m} y_i \alpha_i K(x,x') + b^*\right) $$
+which is equivlant to the max-margin hyperplane in the feature space. The max-maxgin hyperplane has the geometric margin:
+$$ \gamma^* = \frac{1}{||w||_2} = \frac{1}{\sqrt{\sum_{i \in SV} \alpha_i}} $$
+
+## Soft Margin SVMs
+* The max-margin SVM is a simple SVM, a main drawback is the assumption the data is linearly separable. This leads to overfitting (when the data contains noise and the outliers are not linearly separable). We introduce a slack variable for each point to combat this.
+
+![SVM slack variable xi introduced](images/SVM3.png){width=40%}
+
+* With the slack parameter $\xi$, the criterion becomes:
+$$ 
+\begin{aligned}
+    & \text{min} \langle w, w \rangle + c \sum_{i=1}^{m} \xi_i^2\\
+    \text{subject to: } & y_i(\langle w, x_i \rangle + b) \geq 1 - \xi_i 
+\end{aligned}
+$$
+    1) $\xi_i \geq 0$, the case of $\xi_i < 0$ is penalized by minimizing $\xi_i^2$
+    2) Paramter $c$ is selected in a large range through cross validation for reaching small testing errors.
+* The primal Lagrangian becomes:
+$$ 
+\begin{aligned}
+    L(w,b,\xi,\alpha) &= \frac{1}{2}\langle w,w \rangle + \frac{c}{2}\sum_{i=1}^{m} \xi_i^2 - \sum_{i=1}^{m} \alpha_i (y_i(\langle w, x_i \rangle + b) - 1 + \xi_i) \\
+    \frac{\partial L}{\partial w} &= 0 \implies \vec{w} = \sum_{i=1}^{m} y_i\alpha_i \vec{x_i} \\
+    \frac{\partial L}{\partial \xi} &= 0 \implies c \xi = \alpha \\
+    \frac{\partial L}{\partial \xi} &= 0 \implies \sum_{i=1}^{m} y_i \alpha_i = 0
+\end{aligned}
+$$
+* The dual is obtained by pluggin in $w$:
+$$
+\begin{aligned}
+    L(w,b,\xi,\alpha) &= \sum_{i=1}^{m} \alpha_i - \frac{1}{2}\sum_{i=1}^{m}\sum_{j=1}^{m} y_iy_j\alpha_i\alpha_j(\langle \vec{x_i}, \vec{x_j} \rangle - \frac{1}{2c} \langle \vec{\alpha}, \vec{\alpha} \rangle\\
+    &= \sum_{i=1}^{m} \alpha_i - \frac{1}{2}\sum_{i=1}^{m}\sum_{j=1}^{m} y_iy_j\alpha_i\alpha_j(\langle \vec{x_i}, \vec{x_j} \rangle + \frac{1}{c} \delta_{ij} ~~~ \delta_{ij} = 1 \text{ if } i = j 
+\end{aligned}
+$$
+Solving the dual problem w.r.t. $\alpha$:
+$$ \underset{\alpha}{\text{min}}~L(\alpha) = \sum_{i=1}^{m} \alpha_i - \frac{1}{2}\sum_{i=1}^{m}\sum_{j=1}^{m} y_i y_j \alpha_i \alpha_j \left( K(x,x') + \frac{1}{c} \delta_{ij} \right) $$
+* The new geometric margin becomes:
+$$ \gamma^* = \frac{1}{||w^*||_2} = \frac{1}{\sqrt{\sum_{i \in SV}\alpha_i^* - \frac{1}{c}\langle \alpha^*, \alpha^* \rangle}} $$
+
+# Learning Models
+
+![Diagram for Bayesian Method for Pattern Classification](images/bayesian_p.png){width=70%}
+
+* Objective: learning the prior and class models, both the *parameters* and the *formulations (forms)* from training data for classification.
+* Terminology:
+    1) **Supervised Learning**: data are labeled manually for training
+    2) **Unsupervised Learning**: the computer discovers the number of class, and labels the data to estimate the class models in an iterative way.
+    3) **Circulum Learning**: training the computer is done by order of the sophsication, you build up to high-level knowledge, starting with basic conepts.
+    4) **Parametric Learning**: the probbility model is specified by a number of parameters with a more or less fixed length (e.g. the Gaussian distribution)
+    5) **Non-parametric Learning**: The probility model is dependent on the samples themselves. If we thread them as parameters, the number of parameters often increases linearly with the size of the training set.
+
+## Max Likelihood Estimation
+* Basic assumptions: 
+    1) There is an underlying frequency $f(x,y)$ for variables $x$ and $y$ jointly. The training data are samples from $f(x,y)$.
+    2) We assume that we know the probability family for $p(x|y=i),~=1,...,k$. Each family is specified by a vector valued parameter $\theta$. This means MLE is a *parametric method*.
+    3) The different class of models can be learned independently. E.g. there is no correlation between salmon and sea bass in the training data.
+* Given: data $D = \{(x_1,c_1),...(x_N,c_N)\}$ as independent samples from $f(x)$ for a class $w_i$.
+* Goal: esitimate (learn) the prior ($p(y=i)$) and conditional probabilities ($p=(x|y=i),~i=1,2,...,k$) as an estimation of $f(x)$
+* Formulation: We choose $\theta$ to minimize a "distance measure" between $f(x)$ and $p(x;\theta)$
+$$ \theta^* = \text{arg}\underset{\theta \in \Omega_\theta}{\text{min}} \int f(x) \log \frac{f(x)}{p(x;\theta)} dx $$
+* This is called the Kullback-Leibler divergence, formally defined as:
+$$ 
+\begin{aligned}
+    KL(f||p) &= \int f(x) log \frac{f(x)}{p(x;\theta)} dx\\
+             &= E_f(\log f(x)) - E_f (\log p(x;\theta))
+\end{aligned}
+$$
+So, we can formulate $\theta^*$ as:
+$$ 
+\begin{aligned}
+    \theta^* &= \text{arg}\underset{\theta \in \Omega_\theta}{\text{min}}~ \int f(x) \log \frac{f(x)}{p(x;\theta)} dx \\
+             &= \text{arg}\underset{\theta \in \Omega_\theta}{\text{min}}~ KL(f||p) \\ 
+             &= \text{arg}\underset{\theta \in \Omega_\theta}{\text{min}}~ E_f(\log f(x)) - E_f (\log p(x;\theta)) \\
+             &= \text{arg}\underset{\theta \in \Omega_\theta}{\text{max}}~ E_f (\log p(x;\theta)) \\ 
+             &= \text{arg}\underset{\theta \in \Omega_\theta}{\text{max}}~ \sum_{i=1}^{N} \log p(x_i;\theta)
+\end{aligned}
+$$
+Where $E_f$ is the expectation of $f(x)$. This is the optimal criterion because by minimizing the KL-divergence, we minimize the difference between the proposed probability distribution and the actual probability distribution.
+* We can approximate the sample mean with the expectation:
+$$ E_f \approx \frac{1}{m} \sum_{i=1}^{m} \log p(x_i;\theta) + \epsilon$$ 
+with $\epsilon$ on the order of $O(\frac{c}{m})$, so as the data set grows, $epsilon$ appraches 0.
+* We denote the log-likelihood function to be:
+$$ \ell(\theta) = \sum_{i=1}^{N} \log p(x_i;\theta) $$
+and compute $\theta^*$ with:
+$$ \frac{d\ell(\theta)}{d\theta} = 0 $$
+
+###MLE Summary
+* MLE computes one point in the probability family $\Omega_\theta$.
+* There are 3 interpretations of MLE:
+    1) Minimize the KL-divergence (information theory perspective)
+    2) Maxmimize the log-likelihood $\ell(\theta) = \sum_{i=1}^{N} \log p(x_i;\theta)$ minimize loss $L(\theta)$), statistics perspective
+    3) Minimum coding length, computer science perspective
+
+![MLE probability families](images/MLE.png){width=20%}
+
+* It treats $p$ as a quantity. The problems are:
+    1) Does not incorporate general loss, loss is only in terms of how well it explains the data
+    2) It is difficult to integrate with new data incrementally (e.g. if new data arrives after MLE, how do we update $p$?).
+    3) It is a point estimate, it does not preserve the full uncertainty (e.g. there could be multiple peaks, each valid $\theta^*$).
+
+## Bayes Learning
+* Bayes learning addressed the point estimatation problem by treating $\theta$ as a random variable (and so it estimates a probability distribution of $\theta$). We denote the class probability $p(x|\theta)$ (constrast to $p(x;\theta)$). Instead of computing a single $\theta^*$, we compute the posterior probability from $D$. Since the samples in $D$ are independent, we have:
+$$ p(\theta|D) = \frac{p(D|\theta)P(\theta)}{p(D)} = \prod_{i=1}^{N} \frac{p(x_i|\theta)p(\theta)}{p(D)} $$
+
+### Recursive Bayes Learning
+* Suppose we observe a new data set $D^{new} = {x_{N+1},...,x_{N+M}}$ after learning the posterior proability $p(\theta|D)$, we can treat $p(\theta|D)$ as our prior model and compute:
+$$ 
+\begin{aligned}
+    p(\theta|D^{new},D) &= \frac{p(D^{new}|\theta,D)P(\theta|D)}{p(D^{new})} \\
+                        &= \prod_{i=N+1}^{M} \frac{p(x_i|\theta)p(\theta|D)}{p(D^{new})} \\
+                        &= \prod_{i=1}^{N+M} \frac{p(x_i|\theta)p(\theta)}{p(D^{new},D)}
+\end{aligned}
+$$
+* This is an iterative learning procedure; you start with a non-iformative or uniform Bayesian prior probabilities and as more samples are observed, the distribution becomes more contoured, less uniform, with lower variance.
+* Eventually the Bayesian Estimate converges on the MLE as the number of data points grows.
+
+## Parzen Windows and K-Nearest Neighbor
+* Need to actually study and didn't have time to convert these into proper notes, but these are directly from the course slides.
+
+![Basic idea](images/Parzen.png){width=70%}
+
+![Non-parametric density estimation](images/Parzen2.png){width=70%}
+
+![Goal](images/Parzen3.png){width=70%}
+
+![Two general methods for window design](images/Parzen4.png){width=70%}
+
+
 
