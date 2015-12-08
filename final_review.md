@@ -40,7 +40,7 @@ where $p(y)$ is the **prior probability**, $p(x|y)$ is the **likelihood**.
 * **Joint probability** is given by
 $$ p(x,y) = p(y|x)p(x) $$
 * The **expected risk** is computed with:
-$$ R(\alpha_i|x) = \sum^{k}_{j=1}\lambda(\alpha_i|y=j)p(y=j)|x) $$
+$$ R(\alpha_i|x) = \sum^{k}_{j=1}\lambda(\alpha_i|y=j)p(y=j|x) $$
 where $\lambda(\alpha_i|y=j)$ is the **penalty** (usually a matrix) of taking action $\alpha_i$ when the true outcome is $y=j$ the $p(y=j|x)$ is the likelihood the true outcome is $y=j$ given data $x$.
 * The optimal action minimizes conditional risk 
 
@@ -60,7 +60,7 @@ $$ R(\alpha_i|x) = \alpha\left(\substack{-0.2 \\ 0.2}\right)$$
     * The risk for classifying $x$ to class $\alpha = i$ is the probability of misclassification, which is given by:
     $$ R(\alpha=i|x) = \sum_{y \neq i} p(y|x) = 1 - p(y = i |x) = \lambda(\alpha|y=i)$$
     * The optimal decision to make is the class that has the maximum posterior probability
-    $$ \alpha(x) = arg\underset{\Omega^\alpha}{min}(1 - p(\alpha|x)) = arg\underset{\Omega^\alpha}{max}(p(\alpha|x)) $$
+    $$ \alpha(x) = \text{arg}\underset{\Omega^\alpha}{\text{min}}(1 - p(\alpha|x)) = \text{arg}\underset{\Omega^\alpha}{\text{max}}(p(\alpha|x)) $$
 
 ## Discriminant Functions/Decision Boundaries
 * **Discriminant Functions** are functions which describe a mathematical description of the optimal decision to make. That is, they divide a decision space into optimal decisions based on some empirical criteria (min loss, min risk, etc).
@@ -85,7 +85,7 @@ $$
               = \int \sum_{y=1}^k \lambda(\alpha(x)|y)p(y,x)dx
 $$
 * We can estimate the Bayes risk (known as **empirical risk**) by summing all the risks (wrong decisions over the testing set)
-$$ \text{Given } D = \{(x_i,y_i);i=1,2,...,m\} \text{ Bayes risk = } R(\alpha) = \sum_{j=1}^{m}\lambda(\alpha(x_j)|y-j) $$
+$$ \text{Given } D = \{(x_i,y_i);i=1,2,...,m\} \text{   Bayes risk = } \frac{1}{m} R(\alpha) = \sum_{j=1}^{m}\lambda(\alpha(x_j)|y=j) $$
 * The **Bayesian Decision Policy** minimizes loss $\pi = \text{argmin } R_\pi$ (always picks the action with the lowest risk).
      * For the case of 0/1 loss, the Bayesian decision policy will always choose the class with the highest posterior probability $p(y=i|x)$. Accordingly, the risk of this decision is $1-p(y=i|x)$
 
@@ -125,7 +125,7 @@ $$
 $$
 where $S = \frac{1}{N}  \sum_{n=1}^{N} \left( \boldsymbol{x_n} - \bar{\boldsymbol{x}} \right)^T \left( \boldsymbol{x_n} - \bar{\boldsymbol{x}} \right)$. $S$ is called the scatter (covariance) matrix.
 
-* **Goal**: find minimize variance ($\boldsymbol{u}^T S \boldsymbol{u}$) under the constraint $\boldsymbol{u}$ is a unit vector ($||\boldsymbol{u}|| = 1 \implies g(\boldsymbol{u}) = \boldsymbol{u}^T \boldsymbol{u} - 1$)
+* **Goal**: find maximize variance ($\boldsymbol{u}^T S \boldsymbol{u}$) under the constraint $\boldsymbol{u}$ is a unit vector ($||\boldsymbol{u}|| = 1 \implies g(\boldsymbol{u}) = \boldsymbol{u}^T \boldsymbol{u} - 1$)
 * We can use a Lagrange multiplier to solve for this constraint.
 $$ 
 \begin{aligned}
@@ -138,7 +138,7 @@ $$
 so $\boldsymbol{u}$ is an eigenvector of the covariance matrix $S$.
 
 ##Fisher Linear Discriminant
-* In a two-class classification problem, given: $n$ samples $text{x}_1,...\text{x}_n$ in a $d$-dimensional feature space, $n_1$ in subset $X_1$ with label $w_1$ and $n_2$ in subset $X_2$ labeled $w_2$.
+* In a two-class classification problem, given: $n$ samples $\text{x}_1,...\text{x}_n$ in a $d$-dimensional feature space, $n_1$ in subset $X_1$ with label $w_1$ and $n_2$ in subset $X_2$ labeled $w_2$.
 * Goal: find a vector $w$ and project the $n$ samples on this axis:
 $$ \text{\textbf{y}} = w^T \text{\textbf{x}} = \langle w, \text{\textbf{x}} \rangle $$
 such that the projected samples are well separated.
@@ -178,8 +178,7 @@ where $\text{S}_i$ is the scatter matrix computed from samples inside class $w_i
 * The between-class scatter matrix becomes:
 $$ \text{S}_B = \text{S}_{total} - \text{S}_W = \sum_{i=1}^{c} n_i(\text{\textbf{m}}_i - \text{\textbf{m}})(\text{\textbf{m}}_i - \text{\textbf{m}})^T $$
 where $\text{S}_{total}$ is the total scatter matrix computed from all samples.
-* We want vectors $w_i,i = 1, 2, ..., c-1$, and project the samples from $d$-dimensional feature space $
-x = (x_1, x_2, ..., x_d)$ to the $c-1$ dimensional space $\text{\textbf{y}} = (y_1, y_2, ..., y_{c-1})$.
+* We want vectors $w_i,i = 1, 2, ..., c-1$, and project the samples from $d$-dimensional feature space $x = (x_1, x_2, ..., x_d)$ to the $c-1$ dimensional space $\text{\textbf{y}} = (y_1, y_2, ..., y_{c-1})$.
 $$ \text{\textbf{y}} = (w_1^T\text{\textbf{x}}, ..., w_{c-1}^T\text{\textbf{x}}) = W^T\text{\textbf{x}}$$
 where $W$ is a $(c-1)xd$ matrix with $w_i$ being the $i$-th column. 
 * The criterion for the optimal $W$ is (Note: the bars indicate a determinant)
@@ -194,7 +193,7 @@ $$ J(W) = \frac{|W^T\text{S}_BW|}{|W^T\text{S}_WW|} $$
 * Given: a set of data points in $d$ space $\{x_1, ..., x_n\}$ and a dissimilarity/distance measure/metric between two points $x_i,~x_j:~\delta_{ij}$.
 * Objective: find points in 1, 2, or 3-space $\{y_1,...y_n\}$ with usually Eclidean distances $d_{ij}$ for two points $y_i$ and $y_j$.
 * One criterion: stress
-$$ Stress = \frac{\sum_{i,j}(d_{ij}-\delta_{ij})^2}{\sum_{i,j} \delta_{ij}^2} $$
+$$ \text{Stress} = \frac{\sum_{i,j}(d_{ij}-\delta_{ij})^2}{\sum_{i,j} \delta_{ij}^2} $$
 and minimize the total pair-wise stress between each point
 
 ## Local Linear Embedding (LLE)
@@ -206,8 +205,8 @@ and minimize the total pair-wise stress between each point
 * LLE algorithm:
     1) Compute the neighbors of each data point, $\vec{X}_i$
     2) Compute weights $W_{ij}$ that best reconstruct each data point $\vec{X}_i$ from its neighbors, minimizing the cost according to:
-    $$ \epsilon(W) = \sum_i|X_i \sum_j W_{ij}X_j|^2 $$
-    Such that $\sum_{ij} = 1$. Thus $\epsilon$ gives you the squared difference between the data points and their reconstructions.
+    $$ \epsilon(W) = \sum_i| X_i \sum_j W_{ij}X_j|^2 $$
+    Such that $\sum_{ij} W_{ij}= 1$. Thus $\epsilon$ gives you the squared difference between the data points and their reconstructions.
     3) Compute the vectors $Y_i$ best reconstructed by the weights $W_{ij}$, minimizing the quadratic equation:
     $$ \phi(Y) = \sum_i | \vec{Y_i} - \sum_j W_{ij} \vec{Y_j} |^2 $$
 
@@ -221,18 +220,17 @@ and minimize the total pair-wise stress between each point
     2) A set of weak classifiers, a pool constructed for a task 
     $$ \Delta = \{h_t(x): t = 1,...,T\} $$
     $$ h_t(x): \Omega^d \rightarrow \{-1,1\} $$
-* Basic idea pt. 2: Suppose we have two weak classifiers $h_1$ and $h_2$ which have 49% error each (slightly better than random chance), can we combine them to make a new classiifer so that the error becomes lower? If so, we can repeat this process to make the error zero.
+* Basic idea pt. 2: Suppose we have two weak classifiers $h_1$ and $h_2$ which have 49% error each (slightly better than random chance), can we combine them to make a new classifier so that the error becomes lower? If so, we can repeat this process to make the error zero.
 
 ![The boost classifier](images/boosting1.png){width=70%}
 
 * The error rate of a weak classifier $h$ is calculated with:
-
 $$ \epsilon(h) = \frac{1}{m} \sum_{i=1}^{m} 1(h(x_i) \neq y_i) < \frac{1}{2} $$
  where 1() is an indicator function (equals 1 if the condition is true, 0 otherwise).
 
 * A **weak classifier** works better than random chance. For binary classifiers, it has less than 50% errors. If the error is larger than 50%, we flip the sign of the classifier to make the error less than 50%. We just cannot have classifiers with exactly 50% error (they provide no insight/additional information).
 * The **strong classifier** is a linear combination of the weak classifiers:
-$$ H(x) = sign\{\alpha_1 h_1(x) + ... + \alpha_T h_T(x) \} = sign\{F(x)\} $$
+$$ H(x) = \text{sign}\{\alpha_1 h_1(x) + ... + \alpha_T h_T(x) \} = \text{sign}\{F(x)\} $$
 * Objective: choose $h = (h_1,...h_t)$ and $\alpha = (\alpha_1, ..., \alpha_T)$ to minimize the empirical error:
 $$ Err(H) = \frac{1}{m} \sum_{i=1}^{m} 1(H(x_i) \neq y_i) $$
 
@@ -259,7 +257,7 @@ $$ Err(H) = \frac{1}{m} \sum_{i=1}^{m} 1(H(x_i) \neq y_i) $$
     1) The weight of the new classifier is always positive.
         * The smaller classification error, and bigger weight, and strong "voice" in the strong classifier.
     2) The weights of the data points are multiplied by:
-    $$ exp\{-y_i\alpha_t h_t(X_i)\} = \left( \substack{e^{-\alpha_t} < 1 ~~ if h_t(x_i) = y_i \\ e^{\alpha_t} > 1 ~~ if h_t(x_i) \neq y_i} \right) $$
+    $$ \text{exp}\{-y_i\alpha_t h_t(X_i)\} = \left( \substack{e^{-\alpha_t} < 1 ~~\text{ if } h_t(x_i) = y_i \\ e^{\alpha_t} > 1 ~~\text{ if } h_t(x_i) \neq y_i} \right) $$
     * The weights of incorrectly classified data points increase, and the weights of the correctly classified data points decreases. So the incorrectly classified data points recieve more "attention" in the next run.
 
 
@@ -275,12 +273,12 @@ where $A$ is the set of correctly classified examples.
 * Since by definition $\sum_i D_t(x_i) = 1$, the data weights can be computed recursively:
 $$ 
 \begin{aligned}
-    D_{t+1}(x_i) &= \frac{1}{Z_t} D_t(x_i) \text{exp}\{-y_i \alpha_i h_t(x_i) = 1\}
-                 &= \frac{1}{Z_t Z_{t-1} ... Z_{1}} \frac{1}{m} \text{exp}\{-y_i F(x_i) = 1\}
+    \sum_{i=1}^{m} D_{t+1}(x_i) &= \frac{1}{Z_t} \sum_{i=1}^{m} D_t(x_i) \text{exp}(-y_i \alpha_i h_t(x_i)) = 1 \\
+                 &= \frac{1}{Z_t Z_{t-1} ... Z_{1}} \frac{1}{m} \sum_{i=1}^{m}\text{exp}(-y_i F(x_i)) = 1
 \end{aligned}
 $$
-Therefore we have a constraint on $Z$:
-$$ Z = Z_t Z_{t-1} ... Z_{1} = \frac{1}{m} \sum_{i=1}^{m} \text{exp}\{-y_i F(x_i)\} $$
+Therefore we have a constraint on $Z_{t+1}$ (note that this is the empirical loss function):
+$$ Z_{t+1} = Z_t Z_{t-1} ... Z_{1} = \frac{1}{m} \sum_{i=1}^{m}\text{exp}(-y_i F(x_i)) $$
 
 ### Adaboost Convergence
 * Conceptually: AdaBoost converges because we fix the portion of the algorithm created before step t (the current step). We also choose the weak classifier with the minimum error at each round of boosting, and the weight assigned in the final classifier is proportional to the error. Because the earlier weak classifiers are "stronger" classifiers than the current weak classifier and do not change, the current weak classifier is solely focused on "chipping away" the remaining error.
@@ -295,7 +293,7 @@ $$ (h_t,\alpha_t)^* = \text{argmin}~Z_t(h_t,\alpha_t) $$
 $$ 
 \begin{aligned}
     \frac{\partial Z_t(\alpha_t,h_t)}{\partial \alpha_t} &= \sum_{x_i \in A} -D_{t}(x_i) \text{exp}(-\alpha_t) + \sum_{x_i \notin A} D_{t}(x_i) \text{exp}(\alpha_t) = 0\\
-    &\implies \sum_{x_i \in A} D_t{x_i} = \sum_{x_i \notin A}D_t(x_i)\text{exp}(2\alpha_t) 
+    &\implies \sum_{x_i \in A} D_t(x_i) = \sum_{x_i \notin A}D_t(x_i)\text{exp}(2\alpha_t) 
 \end{aligned}
 $$
 * We know the weighted error for each weak classifier is:
@@ -320,7 +318,7 @@ $$ \text{Err}(H) \leq Z \leq \text{exp}\left( -2\sum_{t=1}^{T}\gamma_t^2\right) 
 ![AdaBoost bound on loss (Delta = 1() func)](images/ada.png){width=60%}
 
 ## RealBoost
-* AdaBoost uses the sign of the final classifier, which is the weighted sum of the signs of each weak classifier. Because we are using a step function, we losing a lot of information (namely the distance of the point from the decision boundary). We can include a "confidence" of the classifier by using a number of bins on the step function to represent a confidence.
+* AdaBoost uses the sign of the final classifier, which is the weighted sum of the signs of each weak classifier. Because we are using a step function, we lose a lot of information (namely the distance of the point from the decision boundary). We can include a "confidence" of the classifier by using a number of bins on the step function to represent a confidence.
 * We extend $h_t(x)$ to a more general form $h_t(x;\theta_t)$ with $\theta_t = (h_{t,1},...,h_{t,B})$ is a vector of $B$ parameters with $B$ being the nunmber of bins we choose to approximate an arbitrary 1D function.
 
 ![RealBoost bins](images/realboost.png){width=50%}
@@ -345,7 +343,7 @@ $$
 $$
 \begin{aligned}
     Z_t(\theta_t) &= \sum_{x \in \Omega} \text{exp}(-y_i F(x_i;\theta))\\
-                  &= \sum_{x \in \Omega} p_t(b) e^{-h_{t,b(x_i)}} + q_t(b) e^{h_{t,b(x_i)}}
+                  &= \sum_{x \in \Omega} p_t(b(x_i)) e^{-h_{t,b(x_i)}} + q_t(b(x_i)) e^{h_{t,b(x_i)}}
 \end{aligned}
 $$
 * In the above equations, $h_t(b)$ takes a real value and absorbs $\alpha_t$. We reformulate $Z$ slightly to sum over bins instead of over data points, combining the data points intp $p$ and $q$ according to their definitions (above):
@@ -385,7 +383,7 @@ $$
 \end{aligned}
 $$
 * Probabilistic Claim: for any probability distribution $p(x,y)$, both optimization problems have a minimum at:
-$$ F(x) = \langle \alpha^*,h*(x)\rangle = \frac{1}{2} \log \frac{p(y=+1|x)}{p(y=-1|x)} $$
+$$ F(x) = \langle \alpha^*,h^*(x)\rangle = \frac{1}{2} \log \frac{p(y=+1|x)}{p(y=-1|x)} $$
 This statement is proved by taking a derivative w.r.t. $F(x)$ to derive the minimum.
 
 ## Cascaded Classifiers
@@ -404,7 +402,7 @@ This statement is proved by taking a derivative w.r.t. $F(x)$ to derive the mini
     4) The rule for labeling leaves of the tree.
     5) Data validation, variable combination, and missing data strategy.
 
-* The **criteria for splitting* a leaf node is to make the population of the samples in the children nodes purer than the current leaf. Given a node $t$ in the tree $T,~p(j|t);~j=1,2,...,k$ is the proportion (probability) of training samples labeled $j$ in $t$. 
+* The **criteria for splitting** a leaf node is to make the population of the samples in the children nodes purer than the current leaf. Given a node $t$ in the tree $T,~p(j|t);~j=1,2,...,k$ is the proportion (probability) of training samples labeled $j$ in $t$. 
 * There are two typical choices for entropy:
     1) The Shannon entropy:
     $$ i(t) = - \sum_{j=1}^{k} p(j|t) \log(j|t) $$
@@ -422,6 +420,7 @@ $$ \Delta i(s,t) = i(t) - \sum_{j=1}^{k} p(j) i(t_j) $$
 ## Syntactic Pattern Recognition
 * Patterns are represented by a vector of features, and pattern recognition is to partition the space. 
 * This scheme is also used in the tree-structured classification.
+
 ### Grammar-based Methods
 * Basic idea: use grammars for pattern recognition, use parsing algorithms from compiler theory to recognize patters.
 * A **grammar** is often written as a quadruple: $G = \langle V_N,V_T,R,s\rangle$, where $V_n$ is a set of non-terminal nodes, $V_T$ is a set of terminal nodes, $R$ is a set of production rules, and $s$ is an initial node.
@@ -523,7 +522,7 @@ $$ g(x) = \sum_{i=1}^{N} \alpha_i y_i \langle \phi(x_i), \phi(x) \rangle + b $$
 * A **kernel** is a function mapping $\mathbb{R}^n x \mathbb{R}^n \rightarrow \mathbb{R}: K(x,x') = \langle \phi(x), \phi(x') \rangle$
     * The kernel means we don't have to know:
         1) The features $\phi_1(x),...,\phi_N(x)$ explicity
-        2) The dimension $ N $ (the dimension to map to)
+        2) The dimension $N$ (the dimension to map to)
     * All we care about is the final inner product; the computational complexity is independent of $N$.
 * Mercer's Theorem
     * Suppose we don't design $\phi(x)$ explicitly, what properties ensure $K(x,x')$ is a "kernel"?
@@ -565,7 +564,7 @@ $$ \alpha = (\alpha_1,...\alpha_k),~\beta=(\beta_1,...,\beta_m)~~~\text{are the 
     2) $\alpha_i > 0$ if $g_i(w) = 0 \implies$ "Active"
     * From K-T point 3, we see that $alpha_i = 0$ or $g_i(w^*) = 0$. For the case where $\alpha_i = 0$ (or close to 0), this greatly reduces the computation of the SVM. We don't have to compute every $g_i(W)$ (there's one for every data point), we only have to worry about ones where $\alpha_i \neq 0$. These are the points which are close the the hyperplane. Basically, data points which are far from the hyperplane are "deactivated" sice we are confident about their classification.
 * The **Maximal margin classifier** can be written in Lagrangian:
-$$ L(\underbrace{w,b}_{\text{prima}},\underbrace{\alpha}_{\text{dual}}) = \frac{1}{2} \langle w,w \rangle - \sum_{i=1}^{m} \alpha_i [y_i(\langle w, \vec{x_i} \rangle + b) - 1]
+$$ L(\underbrace{w,b}_{\text{primal}},\underbrace{\alpha}_{\text{dual}}) = \frac{1}{2} \langle w,w \rangle - \sum_{i=1}^{m} \alpha_i [y_i(\langle w, \vec{x_i} \rangle + b) - 1]
  $$
 * According to the Kuhn-Tucker Theorem, we solve for the prima variables by:
 $$
@@ -596,7 +595,7 @@ note that most of the $\alpha_i = 0$, which gives us a compact representation of
 * The **support vectors** are the data points which lie on the two hyperplanes:
 $$
 \begin{aligned}
-    SV &= \{\langle x_i,y_i \rangle : y_i(\langle w^*, x_i \langle + b) = 1\} \\
+    SV &= \{\langle x_i,y_i \rangle : y_i(\langle w^*, x_i \rangle + b) = 1\} \\
     w^* &= \sum_{i \in SV} \alpha_i y_i \vec{x_i}
 \end{aligned}
 $$
@@ -642,7 +641,7 @@ $$
     L(w,b,\xi,\alpha) &= \frac{1}{2}\langle w,w \rangle + \frac{c}{2}\sum_{i=1}^{m} \xi_i^2 - \sum_{i=1}^{m} \alpha_i (y_i(\langle w, x_i \rangle + b) - 1 + \xi_i) \\
     \frac{\partial L}{\partial w} &= 0 \implies \vec{w} = \sum_{i=1}^{m} y_i\alpha_i \vec{x_i} \\
     \frac{\partial L}{\partial \xi} &= 0 \implies c \xi = \alpha \\
-    \frac{\partial L}{\partial \xi} &= 0 \implies \sum_{i=1}^{m} y_i \alpha_i = 0
+    \frac{\partial L}{\partial b} &= 0 \implies \sum_{i=1}^{m} y_i \alpha_i = 0
 \end{aligned}
 $$
 * The dual is obtained by pluggin in $w$:
@@ -672,7 +671,7 @@ $$ \gamma^* = \frac{1}{||w^*||_2} = \frac{1}{\sqrt{\sum_{i \in SV}\alpha_i^* - \
 ## Max Likelihood Estimation
 * Basic assumptions: 
     1) There is an underlying frequency $f(x,y)$ for variables $x$ and $y$ jointly. The training data are samples from $f(x,y)$.
-    2) We assume that we know the probability family for $p(x|y=i),~=1,...,k$. Each family is specified by a vector valued parameter $\theta$. This means MLE is a *parametric method*.
+    2) We assume that we know the probability family for $p(x|y=i),~i=1,...,k$. Each family is specified by a vector valued parameter $\theta$. This means MLE is a *parametric method*.
     3) The different class of models can be learned independently. E.g. there is no correlation between salmon and sea bass in the training data.
 * Given: data $D = \{(x_1,c_1),...(x_N,c_N)\}$ as independent samples from $f(x)$ for a class $w_i$.
 * Goal: esitimate (learn) the prior ($p(y=i)$) and conditional probabilities ($p=(x|y=i),~i=1,2,...,k$) as an estimation of $f(x)$
@@ -744,6 +743,3 @@ $$
 ![Goal](images/Parzen3.png){width=70%}
 
 ![Two general methods for window design](images/Parzen4.png){width=70%}
-
-
-
